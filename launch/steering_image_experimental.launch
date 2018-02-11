@@ -1,0 +1,58 @@
+<launch>
+  <!-- CAMERA NODE -->
+  <node pkg="uvc_camera" type="uvc_camera_node" name="barc_cam" output="screen">
+    <param name="width" value="320"/>
+    <param name="height" value="240"/>
+    <param name="index" value="0"/>
+    <param name="device" value="/dev/video0"/>
+    <param name="pixel_format" value="MJPG"/>
+    <param name="fps" value="60"/>    
+    <param name="contrast" value="5"/>    
+  </node>
+
+  <!-- IMAGE PROCESSING NODE -->
+  <node pkg="barc" type="image_processing.py" name="image_processing" output="screen">
+    <param name="display_image" value="True" type="boolean"/>
+    <param name="publish_image" value="False" type="boolean"/>
+    <param name="calibrate_transform" value="False" type="boolean"/>
+    <param name="black_lane" value="True" type="boolean"/>
+    <param name="upperLeftX" value="155" type="int"/>
+    <param name="upperLeftY" value="62" type="int"/>
+    <param name="upperRightX" value="158" type="int"/>
+    <param name="upperRightY" value="165" type="int"/>
+    <param name="lowerRightX" value="85" type="int"/>
+    <param name="lowerRightY" value="206" type="int"/>
+    <param name="lowerLeftX" value="78" type="int"/>
+    <param name="lowerLeftY" value="23" type="int"/>
+  </node>
+  
+  <!-- IMU NODE -->
+  <node pkg="barc" type="imu_data_acquisition.py" name="imu_node" >
+    <param name="port" value="/dev/ttyACM0" />
+  </node>
+
+  <!-- ARDUINO NODE -->
+  <!--  * encoders and ultrasound sensors -->
+  <node pkg="rosserial_python" type="serial_node.py" name="arduino_node" >
+    <param name="port" value="/dev/ttyUSB0" />
+  </node>
+
+  <!-- LANE KEEPING CONTROLLER NODE -->
+  <node pkg="barc" type="lane_keeping_controller.py" name="speed_controller" output="screen">
+    <!-- PROPERTIES -->
+    <param name="speed_desired" value="0.0" />
+    <param name="max_torque" type="int" value="90" />
+    <param name="Kp" value="0.75" />
+    <param name="Kd" value="0.0" />
+    <param name="Ki" value="0.02" /> 
+    <param name="KpS" value="0.0" />
+    <param name="KdS" value="0.0" />
+    <param name="KiS" value="0.0" />
+    <param name="test_time" value ="100.0" />
+  </node>
+
+  <?ignore
+  <node pkg="rosbag" type="record" name="rosbag_record"
+        args=" --all" />
+  ?>
+</launch>
